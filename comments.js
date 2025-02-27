@@ -1,27 +1,20 @@
 //create web server
-const express = require('express');
-const app = express();
-
-//parse request body
-app.use(express.json());
-
-//serve static files
+var express = require('express');
+var app = express();
 app.use(express.static('public'));
-
-//serve comments
-const comments = [];
-app.get('/comments', (req, res) => {
-  res.json(comments);
+app.listen(3000, function () {
+    console.log('Server is running at http://localhost:3000');
 });
-
-//add comment
-app.post('/comments', (req, res) => {
-  const comment = req.body;
-  comments.push(comment);
-  res.status(201).json(comment);
+//use body-parser module to parse data from request body
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+//store comments in an array
+var comments = [];
+app.get('/comments', function (req, res) {
+    res.send(comments);
 });
-
-//start server
-app.listen(3000, () => {
-  console.log('Server started on http://localhost:3000');
+app.post('/comments', function (req, res) {
+    var comment = req.body;
+    comments.push(comment);
+    res.send('Add comment successfully');
 });
