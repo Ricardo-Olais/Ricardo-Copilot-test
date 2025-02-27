@@ -1,29 +1,23 @@
 //create web server
-const server = require('http').createServer();
-const io = require('socket.io')(server,{
-    cors: {
-        origin: "*",
+var http = require('http');
+var fs = require('fs');
+var url = require('url');
+var comments = [];
+http.createServer(function(request, response) {
+    var urlParsed = url.parse(request.url, true);
+    console.log(urlParsed);
+
+    if (urlParsed.pathname == '/echo' && urlParsed.query.text) {
+        response.setHeader('Cache-control', 'no-cache');
+        response.end(urlParsed.query.text);
+    } else if (urlParsed.pathname == '/comments') {
+        if (urlParsed.query.comment) {
+            comments.push(urlParsed.query.comment);
+        }
+        response.setHeader('Cache-control', 'no-cache');
+        response.end(JSON.stringify(comments));
+    } else {
+        response.statusCode = 404;
+        response.end('Page not found');
     }
-});
-server.listen(3001, function() {
-    console.log('Listening HTTP on 3001' );
-});
-
-io.on('connection',function (socket){
-    console.log('connected');
-
-
-   socket.on('send-message',function (data){
-       console.log(data);
-       io.emit('message',data);
-   });
-
-   socket.on('send-ubicacion',function (data){
-       console.log(data);
-       io.emit('ubicacion',data);
-   });
-
-   socket.on('disconnect',function (){
-       console.log('disconnected')
-   });
-})
+}).listen(3000)
