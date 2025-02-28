@@ -1,30 +1,25 @@
-//create web server using express
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const bodyParser = require('body-parser');
-const port = 3000;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Database setup
-const comments = [];
-
-// Routes
-app.get('/comments', (req, res) => {
-    res.json(comments);
-});
-
-app.post('/comments', (req, res) => {
-    const comment = req.body;
-    comments.push(comment);
-    res.status(201).json(comment);
-});
-
-// Start server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+//create web server
+var http = require('http');
+var fs = require('fs');
+var url = require('url');
+ 
+var comments = [];
+ 
+http.createServer(function(request, response) {
+    var urlParsed = url.parse(request.url, true);
+    console.log(urlParsed);
+ 
+    if (urlParsed.pathname == '/echo' && urlParsed.query.text) {
+        response.setHeader('Cache-control', 'no-cache');
+        response.end(urlParsed.query.text);
+    } else if (urlParsed.pathname == '/comments') {
+        if (urlParsed.query.comment) {
+            comments.push(urlParsed.query.comment);
+        }
+        response.setHeader('Cache-control', 'no-cache');
+        response.end(JSON.stringify(comments));
+    } else {
+        response.statusCode = 404;
+        response.end('Page not found');
+    }
+}).listen(1337);
