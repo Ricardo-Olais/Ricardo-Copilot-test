@@ -1,25 +1,19 @@
 //create web server
-var http = require('http');
-var fs = require('fs');
-var url = require('url');
- 
-var comments = [];
- 
-http.createServer(function(request, response) {
-    var urlParsed = url.parse(request.url, true);
-    console.log(urlParsed);
- 
-    if (urlParsed.pathname == '/echo' && urlParsed.query.text) {
-        response.setHeader('Cache-control', 'no-cache');
-        response.end(urlParsed.query.text);
-    } else if (urlParsed.pathname == '/comments') {
-        if (urlParsed.query.comment) {
-            comments.push(urlParsed.query.comment);
-        }
-        response.setHeader('Cache-control', 'no-cache');
-        response.end(JSON.stringify(comments));
-    } else {
-        response.statusCode = 404;
-        response.end('Page not found');
-    }
-}).listen(1337);
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const comments = [];
+app.use(cors());
+app.use(bodyParser.json());
+app.post('/comments', (req, res) => {
+  const comment = req.body;
+  comments.push(comment);
+  res.status(201).send(comment);
+});
+app.get('/comments', (req, res) => {
+  res.status(200).send(comments);
+});
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
